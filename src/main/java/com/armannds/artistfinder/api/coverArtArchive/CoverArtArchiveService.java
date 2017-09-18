@@ -31,9 +31,9 @@ public class CoverArtArchiveService implements CoverIconService {
 
 	private static final String IMAGE_NOT_FOUND = "404 Cover Image not found";
 
-	private RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 
-	private ObjectMapper jsonObjectMapper;
+	private final ObjectMapper jsonObjectMapper;
 
 	public CoverArtArchiveService(RestTemplate restTemplate, ObjectMapper jsonObjectMapper) {
 		this.restTemplate = restTemplate;
