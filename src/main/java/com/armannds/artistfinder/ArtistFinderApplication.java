@@ -3,6 +3,7 @@ package com.armannds.artistfinder;
 import com.armannds.artistfinder.api.coverartarchive.CoverArtArchiveService;
 import com.armannds.artistfinder.api.musicbrainz.MusicBrainzService;
 import com.armannds.artistfinder.api.wikipedia.WikipediaService;
+import com.armannds.artistfinder.finder.ArtistFinder;
 import com.armannds.artistfinder.service.ArtistService;
 import com.armannds.artistfinder.service.CoverIconService;
 import com.armannds.artistfinder.service.DescriptionService;
@@ -46,5 +47,11 @@ public class ArtistFinderApplication {
     @Bean
     public ArtistService artistService(RestTemplate restTemplate) {
 	    return new MusicBrainzService(restTemplate);
+    }
+
+    @Bean
+    public ArtistFinder artistFinder(ArtistService artistService, DescriptionService descriptionService,
+                                     CoverIconService coverIconService) {
+	    return new ArtistFinder(artistService, descriptionService, coverIconService);
     }
 }

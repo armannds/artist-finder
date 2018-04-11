@@ -3,7 +3,6 @@ package com.armannds.artistfinder.service;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public interface ArtistService {
 
