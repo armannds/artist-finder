@@ -3,6 +3,7 @@ package com.armannds.artistfinder.api.coverartarchive;
 import com.armannds.artistfinder.service.AsyncService;
 import com.armannds.artistfinder.service.CoverIconService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,7 +47,11 @@ public class CoverArtArchiveService extends AsyncService implements CoverIconSer
 	    return createObjectNode()
                 .put("id", getId(album))
                 .put("title", album.at("/title").textValue())
-                .set("image", coverIcon);
+                .put("image", getImage(coverIcon));
+    }
+
+    private String getImage(JsonNode coverIcon) {
+	    return coverIcon.at("/images").elements().next().at("/image").textValue();
     }
 
     private String createUrl(String albumMbid) {
