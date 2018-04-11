@@ -1,10 +1,13 @@
 package com.armannds.artistfinder.service;
 
-import com.armannds.artistfinder.data.Artist;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public interface ArtistService {
 
-	Artist getArtistById(String id) throws ExecutionException, InterruptedException;
+	CompletableFuture<JsonNode> getArtistByIdAsync(String id);
+
+	JsonNode getArtistById(String id);
 }

@@ -1,15 +1,13 @@
 package com.armannds.artistfinder;
 
-import com.armannds.artistfinder.api.coverArtArchive.CoverArtArchiveService;
-import com.armannds.artistfinder.api.musicBrainz.MusicBrainzService;
+import com.armannds.artistfinder.api.coverartarchive.CoverArtArchiveService;
+import com.armannds.artistfinder.api.musicbrainz.MusicBrainzService;
 import com.armannds.artistfinder.api.wikipedia.WikipediaService;
 import com.armannds.artistfinder.service.ArtistService;
 import com.armannds.artistfinder.service.CoverIconService;
 import com.armannds.artistfinder.service.DescriptionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -31,25 +29,22 @@ public class ArtistFinderApplication {
 	}
 
 	@Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+    public RestTemplate restTemplate() {
+		return new RestTemplate();
     }
 
     @Bean
-    public ObjectMapper jsonObjectMapper() {return new ObjectMapper();}
-
-    @Bean
-    public DescriptionService descriptionService(RestTemplate restTemplate, ObjectMapper jsonObjectMapper) {
-	    return new WikipediaService(restTemplate, jsonObjectMapper);
+    public DescriptionService descriptionService(RestTemplate restTemplate) {
+	    return new WikipediaService(restTemplate);
 	}
 
     @Bean
-	CoverIconService coverIconService(RestTemplate restTemplate, ObjectMapper jsonObjectMapper) {
-		return new CoverArtArchiveService(restTemplate, jsonObjectMapper);
+	CoverIconService coverIconService(RestTemplate restTemplate) {
+		return new CoverArtArchiveService(restTemplate);
     }
 
     @Bean
-    public ArtistService artistService(RestTemplate restTemplate, DescriptionService descriptionService, CoverIconService coverIconService) {
-	    return new MusicBrainzService(restTemplate, descriptionService, coverIconService);
+    public ArtistService artistService(RestTemplate restTemplate) {
+	    return new MusicBrainzService(restTemplate);
     }
 }
