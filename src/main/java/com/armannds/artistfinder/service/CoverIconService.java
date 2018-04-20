@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface CoverIconService {
 
-	CompletableFuture<JsonNode> getCoverIconForAlbumAsync(JsonNode album);
+	CompletableFuture<JsonNode> getCoverIconForAlbumAsync(String id, String title);
 
-	JsonNode getCoverIconForAlbum(JsonNode album);
+	JsonNode getCoverIconForAlbum(String id, String title);
 }

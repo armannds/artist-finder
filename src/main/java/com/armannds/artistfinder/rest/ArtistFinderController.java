@@ -3,12 +3,11 @@ package com.armannds.artistfinder.rest;
 import com.armannds.artistfinder.finder.ArtistFinder;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,13 +21,18 @@ public class ArtistFinderController {
         this.artistFinder = artistFinder;
     }
 
+    @GetMapping(value = "/rx/{mbid}")
+    public Mono<JsonNode> getArtistByMbidRx(@PathVariable("mbid") String mbid) {
+        return Mono.empty();
+    }
+
     @Async
-    @RequestMapping(value = "/async/{mbid}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    @GetMapping(value = "/async/{mbid}")
     public CompletableFuture<JsonNode> getArtistByMbidAsync(@PathVariable("mbid") String mbid) {
         return artistFinder.getArtistByIdAsync(mbid);
     }
 
-    @RequestMapping(value = "/{mbid}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    @GetMapping(value = "/{mbid}")
     public JsonNode getArtistByMbid(@PathVariable("mbid") String mbid) {
         return artistFinder.getArtistById(mbid);
     }

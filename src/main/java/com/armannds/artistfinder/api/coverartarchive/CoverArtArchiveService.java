@@ -9,49 +9,46 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.armannds.artistfinder.utils.JsonUtils.*;
+import static com.armannds.artistfinder.utils.JsonUtils.createObjectNode;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 
-public class CoverArtArchiveService extends AsyncService implements CoverIconService {
+public class CoverArtArchiveService extends AsyncService<JsonNode> implements CoverIconService {
 
 	private static final String COVERT_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/{id}";
+	private static final String ERROR = "error";
+	private static final String NOT_FOUND = "404 cover icon not found";
+	private static final ObjectNode NOT_FOUND_ERROR_NODE = createObjectNode().put(ERROR, NOT_FOUND);
 
 	public CoverArtArchiveService(RestTemplate restTemplate) {
 		super(restTemplate);
 	}
 
 	@Override
-	public CompletableFuture<JsonNode> getCoverIconForAlbumAsync(JsonNode album) {
-		return getAsync(createUrl(getId(album)))
-                .exceptionally(e -> createObjectNode()
-                        .set("Error", createTextNode(e.getMessage())))
-                .thenApply(result -> createCoverArt(album, result));
+	public CompletableFuture<JsonNode> getCoverIconForAlbumAsync(final String id, final String title) {
+		return getAsync(() -> restTemplate.getForObject(createUrl(id), JsonNode.class))
+                .exceptionally(e -> NOT_FOUND_ERROR_NODE)
+                .thenApply(result -> createCoverArt(id, title, result));
 	}
 
     @Override
-    public JsonNode getCoverIconForAlbum(JsonNode album) {
-        JsonNode response = getCoverArt(album);
-        return createCoverArt(album, response);
+    public JsonNode getCoverIconForAlbum(String id, String title) {
+        return createCoverArt(id, title, getCoverArt(id));
     }
 
-    private JsonNode getCoverArt(JsonNode album) {
+    private JsonNode getCoverArt(String album) {
         try {
-            return restTemplate.getForObject(createUrl(getId(album)), JsonNode.class);
+            return restTemplate.getForObject(createUrl(album), JsonNode.class);
         } catch (RestClientException e) {
-            return createObjectNode().put("image", "404 not found");
+            return NOT_FOUND_ERROR_NODE;
         }
     }
 
-    private JsonNode createCoverArt(JsonNode album, JsonNode coverIcon) {
-	    return createObjectNode()
-                .put("id", getId(album))
-                .put("title", album.at("/title").textValue())
-                .put("image", getImage(coverIcon));
-    }
-
-    private String getImage(JsonNode coverIcon) {
-	    return coverIcon.at("/images").elements().next().at("/image").textValue();
+    private JsonNode createCoverArt(String id, String title, JsonNode coverIcon) {
+        return createObjectNode()
+                .put("id", id)
+                .put("title", title)
+                .set("image", coverIcon);
     }
 
     private String createUrl(String albumMbid) {

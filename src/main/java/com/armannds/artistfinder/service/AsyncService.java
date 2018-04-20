@@ -1,13 +1,13 @@
 package com.armannds.artistfinder.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-public abstract class AsyncService {
+public abstract class AsyncService <T> {
 
     protected final RestTemplate restTemplate;
 
@@ -15,7 +15,7 @@ public abstract class AsyncService {
         this.restTemplate = restTemplate;
     }
 
-    protected CompletableFuture<JsonNode> getAsync(final String url) {
-        return supplyAsync(() -> restTemplate.getForObject(url, JsonNode.class));
+    protected CompletableFuture<T> getAsync(Supplier<T> supplier) {
+        return supplyAsync(supplier);
     }
 }

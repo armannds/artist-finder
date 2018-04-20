@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 
-public class WikipediaService extends AsyncService implements DescriptionService {
+public class WikipediaService extends AsyncService<JsonNode> implements DescriptionService {
 
     private static final String WIKIPEDIA_DESCRIPTION_URL = "https://en.wikipedia.org/w/api.php";
 
@@ -21,7 +21,7 @@ public class WikipediaService extends AsyncService implements DescriptionService
 
     @Override
     public CompletableFuture<Optional<String>> getDescriptionAsync(String artistName) {
-    	return getAsync(createUrl(artistName))
+    	return getAsync(() -> restTemplate.getForObject(createUrl(artistName), JsonNode.class))
 				.thenApply(this::getDescription);
     }
 
