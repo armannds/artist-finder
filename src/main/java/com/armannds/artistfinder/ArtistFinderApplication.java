@@ -1,12 +1,5 @@
 package com.armannds.artistfinder;
 
-import com.armannds.artistfinder.api.coverartarchive.CoverArtArchiveService;
-import com.armannds.artistfinder.api.musicbrainz.MusicBrainzService;
-import com.armannds.artistfinder.api.wikipedia.WikipediaService;
-import com.armannds.artistfinder.finder.ArtistFinder;
-import com.armannds.artistfinder.service.ArtistService;
-import com.armannds.artistfinder.service.CoverIconService;
-import com.armannds.artistfinder.service.DescriptionService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -33,26 +26,5 @@ public class ArtistFinderApplication {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
-    }
-
-    @Bean
-    public DescriptionService descriptionService(RestTemplate restTemplate) {
-        return new WikipediaService(restTemplate);
-    }
-
-    @Bean
-    CoverIconService coverIconService(RestTemplate restTemplate) {
-        return new CoverArtArchiveService(restTemplate);
-    }
-
-    @Bean
-    public ArtistService artistService(RestTemplate restTemplate) {
-        return new MusicBrainzService(restTemplate);
-    }
-
-    @Bean
-    public ArtistFinder artistFinder(ArtistService artistService, DescriptionService descriptionService,
-                                     CoverIconService coverIconService) {
-        return new ArtistFinder(artistService, descriptionService, coverIconService);
     }
 }

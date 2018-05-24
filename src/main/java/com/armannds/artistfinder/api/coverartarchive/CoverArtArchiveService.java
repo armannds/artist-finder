@@ -4,6 +4,8 @@ import com.armannds.artistfinder.service.AsyncService;
 import com.armannds.artistfinder.service.CoverIconService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -12,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.armannds.artistfinder.utils.JsonUtils.createObjectNode;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
-
+@Service
 public class CoverArtArchiveService extends AsyncService<JsonNode> implements CoverIconService {
 
 	private static final String COVERT_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/{id}";
@@ -20,6 +22,7 @@ public class CoverArtArchiveService extends AsyncService<JsonNode> implements Co
 	private static final String NOT_FOUND = "404 cover icon not found";
 	private static final ObjectNode NOT_FOUND_ERROR_NODE = createObjectNode().put(ERROR, NOT_FOUND);
 
+	@Autowired
 	public CoverArtArchiveService(RestTemplate restTemplate) {
 		super(restTemplate);
 	}

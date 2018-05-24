@@ -8,6 +8,7 @@ import com.armannds.artistfinder.service.CoverIconService;
 import com.armannds.artistfinder.service.DescriptionService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import static com.armannds.artistfinder.utils.JsonUtils.createArrayNode;
 import static com.armannds.artistfinder.utils.JsonUtils.createObjectNode;
 import static java.util.stream.Collectors.toSet;
 
+@Component
 public class ArtistFinder {
 
     private static final String WIKIPEDIA = "wikipedia";
@@ -36,10 +38,13 @@ public class ArtistFinder {
 
     public CompletableFuture<JsonNode> getArtistByIdAsync(String id) {
         return artistService.getArtistByIdAsync(id)
-                .thenCompose(artist -> getDescriptionAsync(artist.getRelations())
-                        .thenCombine(getCoverArtIconsAsync(artist.getAlbums()),
+                .thenCompose(musicBrainzResponse ->
+                        getDescriptionAsync(musicBrainzResponse.getRelations())
+                        .thenCombine(getCoverArtIconsAsync(musicBrainzResponse.getAlbums()),
                                 (description, album) -> createResponse(
-                                        artist.getId(), description.orElse("Description not found!"), album)));
+                                        musicBrainzResponse.getId(),
+                                        description.orElse("Description not found!"),
+                                        album)));
     }
 
     public JsonNode getArtistById(String id) {
@@ -76,10 +81,10 @@ public class ArtistFinder {
 
     private static <T> CompletableFuture<Set<T>> sequence(Set<CompletableFuture<T>> futures) {
         CompletableFuture<Void> allDoneFuture =
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         return allDoneFuture.thenApply(v ->
-                futures.stream().
-                        map(CompletableFuture::join)
+                futures.stream()
+                        .map(CompletableFuture::join)
                         .collect(toSet()));
     }
 

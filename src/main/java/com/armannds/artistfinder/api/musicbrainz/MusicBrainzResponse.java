@@ -4,7 +4,6 @@ import com.armannds.artistfinder.data.Album;
 import com.armannds.artistfinder.data.Relation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Set;
 

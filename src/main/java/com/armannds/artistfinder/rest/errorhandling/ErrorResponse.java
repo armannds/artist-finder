@@ -1,0 +1,18 @@
+package com.armannds.artistfinder.rest.errorhandling;
+
+public class ErrorResponse {
+
+    private final String message;
+
+    public ErrorResponse() {
+        this.message = null;
+    }
+
+    public ErrorResponse(final String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}

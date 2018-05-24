@@ -21,11 +21,6 @@ public class MusicBrainzService extends AsyncService<MusicBrainzResponse> implem
         super(restTemplate);
     }
 
-//    @Override
-//    protected CompletableFuture<MusicBrainzResponse> getAsync(String url) {
-//        return supplyAsync(() -> restTemplate.getForObject(url, MusicBrainzResponse.class));
-//    }
-
     @Override
     public CompletableFuture<MusicBrainzResponse> getArtistByIdAsync(String id) {
         return fetchArtistFromMusicBrainz(id);

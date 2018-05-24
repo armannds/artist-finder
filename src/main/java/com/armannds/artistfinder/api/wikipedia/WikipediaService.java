@@ -3,6 +3,8 @@ package com.armannds.artistfinder.api.wikipedia;
 import com.armannds.artistfinder.service.AsyncService;
 import com.armannds.artistfinder.service.DescriptionService;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -10,11 +12,12 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
-
+@Service
 public class WikipediaService extends AsyncService<JsonNode> implements DescriptionService {
 
     private static final String WIKIPEDIA_DESCRIPTION_URL = "https://en.wikipedia.org/w/api.php";
 
+    @Autowired
     public WikipediaService(RestTemplate restTemplate) {
         super(restTemplate);
     }
