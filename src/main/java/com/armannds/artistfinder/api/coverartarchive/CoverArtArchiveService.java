@@ -1,6 +1,6 @@
 package com.armannds.artistfinder.api.coverartarchive;
 
-import com.armannds.artistfinder.data.Album;
+import com.armannds.artistfinder.dto.Album;
 import com.armannds.artistfinder.service.AsyncService;
 import com.armannds.artistfinder.service.CoverIconService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,12 +1,13 @@
 package com.armannds.artistfinder.finder;
 
 import com.armannds.artistfinder.api.musicbrainz.MusicBrainzResponse;
-import com.armannds.artistfinder.data.Album;
-import com.armannds.artistfinder.data.Relation;
+import com.armannds.artistfinder.api.musicbrainz.Relation;
+import com.armannds.artistfinder.api.musicbrainz.ReleaseGroup;
+import com.armannds.artistfinder.dto.Album;
+import com.armannds.artistfinder.dto.Artist;
 import com.armannds.artistfinder.service.ArtistService;
 import com.armannds.artistfinder.service.CoverIconService;
 import com.armannds.artistfinder.service.DescriptionService;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static com.armannds.artistfinder.utils.JsonUtils.createArrayNode;
-import static com.armannds.artistfinder.utils.JsonUtils.createObjectNode;
 import static java.util.stream.Collectors.toSet;
 
 @Component
@@ -36,22 +35,22 @@ public class ArtistFinder {
         this.coverIconService = coverIconService;
     }
 
-    public CompletableFuture<JsonNode> getArtistByIdAsync(String id) {
+    public CompletableFuture<Artist> getArtistByIdAsync(String id) {
         return artistService.getArtistByIdAsync(id)
                 .thenCompose(musicBrainzResponse ->
                         getDescriptionAsync(musicBrainzResponse.getRelations())
-                        .thenCombine(getCoverArtIconsAsync(musicBrainzResponse.getAlbums()),
-                                (description, album) -> createResponse(
-                                        musicBrainzResponse.getId(),
-                                        description.orElse("Description not found!"),
-                                        album)));
+                                .thenCombine(getCoverArtIconsAsync(musicBrainzResponse.getAlbums()),
+                                        (description, album) -> createResponse(
+                                                musicBrainzResponse.getId(),
+                                                description.orElse("Description not found!"),
+                                                album)));
     }
 
-    public JsonNode getArtistById(String id) {
-        MusicBrainzResponse artist = artistService.getArtistById(id);
-        Optional<String> description = getDescription(artist.getRelations());
-        Set<JsonNode> albums = getCoverArtIcons(artist.getAlbums());
-        return createResponse(artist.getId(), description.orElse("Description not found!"), albums);
+    public Artist getArtistById(String id) {
+        MusicBrainzResponse musicBrainzResponse = artistService.getArtistById(id);
+        Optional<String> description = getDescription(musicBrainzResponse.getRelations());
+        Set<Album> albums = getCoverArtIcons(musicBrainzResponse.getAlbums());
+        return createResponse(musicBrainzResponse.getId(), description.orElse("Description not found!"), albums);
     }
 
     private CompletableFuture<Optional<String>> getDescriptionAsync(Set<Relation> relations) {
@@ -62,7 +61,7 @@ public class ArtistFinder {
 
     private Optional<String> getDescription(Set<Relation> relations) {
         return extractDescriptionName(relations)
-                .flatMap(artistName -> descriptionService.getDescriptionByName(artistName));
+                .flatMap(artistName -> descriptionService.getDescription(artistName));
     }
 
     private Optional<String> extractDescriptionName(Set<Relation> relations) {
@@ -73,32 +72,35 @@ public class ArtistFinder {
                 .findFirst();
     }
 
-    private CompletableFuture<Set<JsonNode>> getCoverArtIconsAsync(Set<Album> albums) {
-        return sequence(albums.stream()
-                .map(album -> coverIconService.getCoverIconForAlbumAsync(album.getId(), album.getTitle()))
-                .collect(toSet()));
+    private CompletableFuture<Set<Album>> getCoverArtIconsAsync(Set<ReleaseGroup> releaseGroups) {
+        return sequence(
+                releaseGroups
+                        .stream()
+                        .map(rg -> coverIconService.getCoverIconForAlbumAsync(rg.getId(), rg.getTitle()))
+                        .collect(toSet())
+        );
     }
 
     private static <T> CompletableFuture<Set<T>> sequence(Set<CompletableFuture<T>> futures) {
-        CompletableFuture<Void> allDoneFuture =
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> allDoneFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         return allDoneFuture.thenApply(v ->
                 futures.stream()
                         .map(CompletableFuture::join)
                         .collect(toSet()));
     }
 
-    private Set<JsonNode> getCoverArtIcons(Set<Album> albums) {
-        return albums
+    private Set<Album> getCoverArtIcons(Set<ReleaseGroup> releaseGroups) {
+        return releaseGroups
                 .parallelStream()
-                .map(album -> coverIconService.getCoverIconForAlbum(album.getId(), album.getTitle()))
+                .map(rg -> coverIconService.getCoverIconForAlbum(rg.getId(), rg.getTitle()))
                 .collect(toSet());
     }
 
-    private JsonNode createResponse(String artist, String description, Collection<JsonNode> album) {
-        return createObjectNode()
-                .put("id", artist)
-                .put("description", description)
-                .set("albums", createArrayNode().addAll(album));
+    private Artist createResponse(String id, String description, Collection<Album> album) {
+        return new Artist.Builder()
+                .id(id)
+                .description(description)
+                .albums(album)
+                .build();
     }
 }

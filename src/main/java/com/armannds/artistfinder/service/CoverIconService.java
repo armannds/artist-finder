@@ -1,6 +1,6 @@
 package com.armannds.artistfinder.service;
 
-import com.armannds.artistfinder.data.Album;
+import com.armannds.artistfinder.dto.Album;
 
 import java.util.concurrent.CompletableFuture;
 

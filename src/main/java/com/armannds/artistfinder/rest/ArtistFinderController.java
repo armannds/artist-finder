@@ -1,6 +1,6 @@
 package com.armannds.artistfinder.rest;
 
-import com.armannds.artistfinder.data.Artist;
+import com.armannds.artistfinder.dto.Artist;
 import com.armannds.artistfinder.finder.ArtistFinder;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
