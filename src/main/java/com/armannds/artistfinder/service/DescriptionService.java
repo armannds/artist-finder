@@ -7,5 +7,5 @@ public interface DescriptionService {
 
     CompletableFuture<Optional<String>> getDescriptionAsync(String artistName);
 
-    Optional<String> getDescriptionByName(String artistName);
+    Optional<String> getDescription(String artistName);
 }

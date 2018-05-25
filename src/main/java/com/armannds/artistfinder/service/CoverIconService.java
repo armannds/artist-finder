@@ -1,12 +1,12 @@
 package com.armannds.artistfinder.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.armannds.artistfinder.data.Album;
 
 import java.util.concurrent.CompletableFuture;
 
 public interface CoverIconService {
 
-	CompletableFuture<JsonNode> getCoverIconForAlbumAsync(String id, String title);
+	CompletableFuture<Album> getCoverIconForAlbumAsync(String id, String title);
 
-	JsonNode getCoverIconForAlbum(String id, String title);
+	Album getCoverIconForAlbum(String id, String title);
 }
