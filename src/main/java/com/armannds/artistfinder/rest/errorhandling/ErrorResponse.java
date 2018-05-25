@@ -4,10 +4,6 @@ public class ErrorResponse {
 
     private final String message;
 
-    public ErrorResponse() {
-        this.message = null;
-    }
-
     public ErrorResponse(final String message) {
         this.message = message;
     }

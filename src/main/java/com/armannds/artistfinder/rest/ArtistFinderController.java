@@ -1,5 +1,6 @@
 package com.armannds.artistfinder.rest;
 
+import com.armannds.artistfinder.data.Artist;
 import com.armannds.artistfinder.finder.ArtistFinder;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +32,13 @@ public class ArtistFinderController {
 
     @Async
     @GetMapping(value = "/async/{mbid}")
-    public CompletableFuture<JsonNode> getArtistByMbidAsync(@PathVariable("mbid") String mbid) {
+    public CompletableFuture<Artist> getArtistByMbidAsync(@PathVariable("mbid") String mbid) {
         validateParameter(mbid);
         return artistFinder.getArtistByIdAsync(mbid);
     }
 
     @GetMapping(value = "/{mbid}")
-    public JsonNode getArtistByMbid(@PathVariable("mbid") String mbid) {
+    public Artist getArtistByMbid(@PathVariable("mbid") String mbid) {
         validateParameter(mbid);
         return artistFinder.getArtistById(mbid);
     }
