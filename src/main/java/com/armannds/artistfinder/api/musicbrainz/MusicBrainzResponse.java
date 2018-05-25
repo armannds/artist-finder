@@ -1,7 +1,5 @@
 package com.armannds.artistfinder.api.musicbrainz;
 
-import com.armannds.artistfinder.data.Album;
-import com.armannds.artistfinder.data.Relation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,7 +11,7 @@ public class MusicBrainzResponse {
     private String id;
     private String name;
     private Set<Relation> relations;
-    private Set<Album> albums;
+    private Set<ReleaseGroup> albums;
 
     public String getId() {
         return id;
@@ -39,12 +37,12 @@ public class MusicBrainzResponse {
         this.relations = relations;
     }
 
-	public Set<Album> getAlbums() {
+	public Set<ReleaseGroup> getAlbums() {
 		return albums;
 	}
 
     @JsonProperty("release-groups")
-    public void setAlbums(Set<Album> albums) {
+    public void setAlbums(Set<ReleaseGroup> albums) {
         this.albums = albums;
     }
 }

@@ -1,9 +1,11 @@
 package com.armannds.artistfinder.api.musicbrainz;
 
+import com.armannds.artistfinder.rest.errorhandling.ResourceNotFoundException;
 import com.armannds.artistfinder.service.ArtistService;
 import com.armannds.artistfinder.service.AsyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,16 +25,20 @@ public class MusicBrainzService extends AsyncService<MusicBrainzResponse> implem
 
     @Override
     public CompletableFuture<MusicBrainzResponse> getArtistByIdAsync(String id) {
-        return fetchArtistFromMusicBrainz(id);
+        try {
+            return getAsync(() -> restTemplate.getForObject(createUrl(id), MusicBrainzResponse.class));
+        } catch (RestClientException e) {
+            throw new ResourceNotFoundException("Artist with mbid " + id + " not found");
+        }
     }
 
     @Override
     public MusicBrainzResponse getArtistById(String id) {
-        return restTemplate.getForObject(createUrl(id), MusicBrainzResponse.class);
-    }
-
-    private CompletableFuture<MusicBrainzResponse> fetchArtistFromMusicBrainz(String id) {
-        return getAsync(() -> restTemplate.getForObject(createUrl(id), MusicBrainzResponse.class));
+        try {
+            return restTemplate.getForObject(createUrl(id), MusicBrainzResponse.class);
+        } catch (RestClientException e) {
+            throw new ResourceNotFoundException("Artist with mbid " + id + " not found");
+        }
     }
 
     private String createUrl(String id) {

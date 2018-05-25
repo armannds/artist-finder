@@ -1,9 +1,8 @@
 package com.armannds.artistfinder.api.coverartarchive;
 
+import com.armannds.artistfinder.data.Album;
 import com.armannds.artistfinder.service.AsyncService;
 import com.armannds.artistfinder.service.CoverIconService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -11,16 +10,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.armannds.artistfinder.utils.JsonUtils.createObjectNode;
+import static com.armannds.artistfinder.api.coverartarchive.NotFoundCoverArtArchiveResponse.NOT_FOUND;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @Service
-public class CoverArtArchiveService extends AsyncService<JsonNode> implements CoverIconService {
+public class CoverArtArchiveService extends AsyncService<CoverArtArchiveResponse> implements CoverIconService {
 
 	private static final String COVERT_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/{id}";
-	private static final String ERROR = "error";
-	private static final String NOT_FOUND = "404 cover icon not found";
-	private static final ObjectNode NOT_FOUND_ERROR_NODE = createObjectNode().put(ERROR, NOT_FOUND);
+	private static final CoverArtArchiveResponse NOT_FOUND_RESPONSE = new NotFoundCoverArtArchiveResponse();
 
 	@Autowired
 	public CoverArtArchiveService(RestTemplate restTemplate) {
@@ -28,35 +25,46 @@ public class CoverArtArchiveService extends AsyncService<JsonNode> implements Co
 	}
 
 	@Override
-	public CompletableFuture<JsonNode> getCoverIconForAlbumAsync(final String id, final String title) {
-		return getAsync(() -> restTemplate.getForObject(createUrl(id), JsonNode.class))
-                .exceptionally(e -> NOT_FOUND_ERROR_NODE)
+	public CompletableFuture<Album> getCoverIconForAlbumAsync(final String id, final String title) {
+		return getAsync(() -> restTemplate.getForObject(createUrl(id), CoverArtArchiveResponse.class))
+                .exceptionally(e -> NOT_FOUND_RESPONSE)
                 .thenApply(result -> createCoverArt(id, title, result));
 	}
 
     @Override
-    public JsonNode getCoverIconForAlbum(String id, String title) {
-        return createCoverArt(id, title, getCoverArt(id));
+    public Album getCoverIconForAlbum(String id, String title) {
+	    CoverArtArchiveResponse response = getCoverArt(id);
+	    return createCoverArt(id, title, response);
     }
 
-    private JsonNode getCoverArt(String album) {
+    private CoverArtArchiveResponse getCoverArt(String id) {
         try {
-            return restTemplate.getForObject(createUrl(album), JsonNode.class);
+            return restTemplate.getForObject(createUrl(id), CoverArtArchiveResponse.class);
         } catch (RestClientException e) {
-            return NOT_FOUND_ERROR_NODE;
+            return NOT_FOUND_RESPONSE;
         }
     }
 
-    private JsonNode createCoverArt(String id, String title, JsonNode coverIcon) {
-        return createObjectNode()
-                .put("id", id)
-                .put("title", title)
-                .set("image", coverIcon);
+    private Album createCoverArt(String id, String title, CoverArtArchiveResponse coverArtArchiveResponse) {
+	    return coverArtArchiveResponse.getImages()
+                .stream()
+                .map(CoverArtArchiveImage::getImage)
+                .findFirst()
+                .map(coverIcon -> createAlbum(id, title, coverIcon))
+                .orElse(createAlbum(id, title, NOT_FOUND));
     }
 
-    private String createUrl(String albumMbid) {
+    private Album createAlbum(String id, String title, String coverIcon) {
+        return new Album.Builder()
+                .id(id)
+                .title(title)
+                .image(coverIcon)
+                .build();
+    }
+
+    private String createUrl(String id) {
         return fromHttpUrl(COVERT_ART_ARCHIVE_URL)
-                .buildAndExpand(albumMbid)
+                .buildAndExpand(id)
                 .toUriString();
     }
 }

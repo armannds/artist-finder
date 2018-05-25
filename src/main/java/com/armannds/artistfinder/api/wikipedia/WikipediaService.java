@@ -29,7 +29,7 @@ public class WikipediaService extends AsyncService<JsonNode> implements Descript
     }
 
     @Override
-    public Optional<String> getDescriptionByName(String artistName) {
+    public Optional<String> getDescription(String artistName) {
         JsonNode response = restTemplate.getForObject(createUrl(artistName), JsonNode.class);
         return getDescription(response);
     }
