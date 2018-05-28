@@ -12,5 +12,4 @@ public class ArtistFinderApplicationTests {
 	@Test
 	public void contextLoads() {
 	}
-
 }
