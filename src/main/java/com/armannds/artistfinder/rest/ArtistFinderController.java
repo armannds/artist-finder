@@ -25,7 +25,7 @@ public class ArtistFinderController {
     }
 
     @GetMapping(value = "/rx/{mbid}")
-    public Mono<JsonNode> getArtistByMbidRx(@PathVariable("mbid") String mbid) {
+    public Mono<Artist> getArtistByMbidRx(@PathVariable("mbid") String mbid) {
         validateParameter(mbid);
         return Mono.empty();
     }

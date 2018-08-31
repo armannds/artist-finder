@@ -10,6 +10,7 @@ import com.armannds.artistfinder.service.CoverIconService;
 import com.armannds.artistfinder.service.DescriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -35,15 +36,19 @@ public class ArtistFinder {
         this.coverIconService = coverIconService;
     }
 
+    public Mono<Artist> getArtistByIdRx(String id) {
+        return Mono.empty();
+    }
+
     public CompletableFuture<Artist> getArtistByIdAsync(String id) {
         return artistService.getArtistByIdAsync(id)
                 .thenCompose(musicBrainzResponse ->
                         getDescriptionAsync(musicBrainzResponse.getRelations())
                                 .thenCombine(getCoverArtIconsAsync(musicBrainzResponse.getAlbums()),
-                                        (description, album) -> createResponse(
+                                        (description, albums) -> createResponse(
                                                 musicBrainzResponse.getId(),
                                                 description.orElse("Description not found!"),
-                                                album)));
+                                                albums)));
     }
 
     public Artist getArtistById(String id) {
